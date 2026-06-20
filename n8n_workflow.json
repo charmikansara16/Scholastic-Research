@@ -1,0 +1,216 @@
+{
+  "name": "ScholarAI Discovery and Email Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scholar-match",
+        "options": {}
+      },
+      "id": "e44d322b-23f4-4a57-b08e-73c38db5cc9f",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://charmikansara16.github.io/Scholastic-Research/api/v1/match",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "category",
+              "value": "={{ $json.body.category }}"
+            },
+            {
+              "name": "income_bracket",
+              "value": "={{ $json.body.income_bracket }}"
+            },
+            {
+              "name": "state",
+              "value": "={{ $json.body.state }}"
+            },
+            {
+              "name": "edu_level",
+              "value": "={{ $json.body.edu_level }}"
+            },
+            {
+              "name": "score",
+              "value": "={{ parseFloat($json.body.score) }}"
+            },
+            {
+              "name": "score_type",
+              "value": "={{ $json.body.score_type || 'percentage' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5f6f8fb0-e22d-45db-b27b-23097bf8d5ef",
+      "name": "Call ScholarAI Match API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.count }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "76adcd9f-3ad0-482a-9e73-b3de8bcbc5f0",
+      "name": "If Scholarships Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"message\": \"Scholarships retrieved and email sent.\",\n  \"count\": {{ $node[\"Call ScholarAI Match API\"].json.count }},\n  \"scholarships\": {{ $node[\"Call ScholarAI Match API\"].json.scholarships }}\n}",
+        "options": {}
+      },
+      "id": "b3e34bcf-6938-4e89-a292-ccf54316938d",
+      "name": "Webhook Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"no_results\",\n  \"message\": \"No matching scholarships found for this profile.\"\n}",
+        "options": {}
+      },
+      "id": "5a4d6f80-0a3c-41ad-a3e9-74c0b4353efd",
+      "name": "Webhook Empty Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        740,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const scholarships = items[0].json.scholarships || [];\nlet emailBody = `<h2>ScholarAI Matched Opportunities</h2>`;\nemailBody += `<p>Based on your profile, here are the scholarships you qualify for:</p><hr/>`;\n\nscholarships.forEach(s => {\n  emailBody += `\n    <div style=\"margin-bottom: 20px;\">\n      <h3 style=\"color: #FF9933; margin-bottom: 5px;\">${s.name}</h3>\n      <p style=\"margin: 0; font-size: 14px;\"><strong>Authority:</strong> ${s.authority}</p>\n      <p style=\"margin: 0; font-size: 14px; color: #138808;\"><strong>Amount:</strong> ${s.amount_display}</p>\n      <p style=\"margin: 0; font-size: 14px;\"><strong>Deadline:</strong> ${s.deadline_display}</p>\n      <p style=\"margin: 0; font-size: 14px; font-style: italic;\"><strong>Why you qualify:</strong> ${s.eligibility_reason}</p>\n      <p style=\"margin: 5px 0 0 0; font-size: 14px;\">\n        <a href=\"${s.apply_url}\" target=\"_blank\" style=\"background-color: #FF9933; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 5px;\">Apply Directly</a>\n      </p>\n    </div>\n    <hr style=\"border: 0; border-top: 1px solid #ddd;\"/>\n  `;\n});\n\nemailBody += `<p style=\"font-size: 11px; color: #888;\">Disclaimer: Verify details on official portals before applying. This is an automated email from ScholarAI.</p>`;\n\nreturn [{ json: { emailBody } }];"
+      },
+      "id": "422ff3db-df19-482a-bc9f-8640774a3dfb",
+      "name": "Format HTML Email Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Webhook Trigger\"].json.body.email }}",
+        "subject": "🎓 Your Personalized ScholarAI Matching Results",
+        "emailType": "html",
+        "htmlBody": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "id": "278e3cdb-f2df-422f-b4df-ec1f885e3f1b",
+      "name": "Send Gmail Notification",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        920,
+        200
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mock-credentials-id",
+          "name": "My Gmail Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call ScholarAI Match API",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call ScholarAI Match API": {
+      "main": [
+        [
+          {
+            "node": "If Scholarships Found",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Scholarships Found": {
+      "main": [
+        [
+          {
+            "node": "Format HTML Email Content",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webhook Empty Response",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format HTML Email Content": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail Notification",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Gmail Notification": {
+      "main": [
+        [
+          {
+            "node": "Webhook Success Response",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "1",
+  "meta": {
+    "templateId": "scholarai-workflow-mvp"
+  }
+}
