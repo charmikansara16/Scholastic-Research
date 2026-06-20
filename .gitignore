@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Local Databases (SQLite)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Environments & API Keys
+.env
+.env.local
+.env.*.local
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+.vite/
