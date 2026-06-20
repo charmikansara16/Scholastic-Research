@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-dark-base text-gray-100 min-h-screen font-sans antialiased overflow-x-hidden;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(255, 153, 51, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(19, 136, 8, 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(0, 0, 128, 0.02) 0px, transparent 50%);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-brand-dark-base;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand-dark-border rounded-full hover:bg-gray-700 transition-colors;
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(22, 29, 48, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-hover {
+  @apply transition-all duration-300;
+}
+
+.glass-panel-hover:hover {
+  background: rgba(22, 29, 48, 0.85);
+  border-color: rgba(255, 153, 51, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(255, 153, 51, 0.1);
+  transform: translateY(-2px);
+}
+
+.glass-input {
+  background: rgba(11, 15, 25, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  @apply text-white placeholder-gray-500 rounded-lg px-4 py-3 focus:outline-none focus:border-brand-saffron focus:ring-1 focus:ring-brand-saffron transition-all duration-200;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Card Badge Gradients */
+.badge-central {
+  background: linear-gradient(135deg, rgba(255, 153, 51, 0.15) 0%, rgba(255, 153, 51, 0.05) 100%);
+  border: 1px solid rgba(255, 153, 51, 0.3);
+  color: #FFB870;
+}
+
+.badge-state {
+  background: linear-gradient(135deg, rgba(19, 136, 8, 0.15) 0%, rgba(19, 136, 8, 0.05) 100%);
+  border: 1px solid rgba(19, 136, 8, 0.3);
+  color: #5BE750;
+}
+
+.badge-ngo {
+  background: linear-gradient(135deg, rgba(0, 128, 255, 0.15) 0%, rgba(0, 128, 255, 0.05) 100%);
+  border: 1px solid rgba(0, 128, 255, 0.3);
+  color: #70B8FF;
+}
+
+.badge-csr {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #C084FC;
+}
