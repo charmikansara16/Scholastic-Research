@@ -11,6 +11,8 @@ export default function Header() {
       const health = await checkApiHealth();
       if (health.status === 'healthy') {
         setApiStatus('online');
+      } else if (health.localFallback) {
+        setApiStatus('local (active)');
       } else {
         setApiStatus('offline');
       }
@@ -50,10 +52,10 @@ export default function Header() {
 
           {/* API Health Status */}
           <div className="flex items-center gap-2 bg-brand-dark-card border border-brand-dark-border rounded-lg px-3 py-1.5 text-xs text-gray-300">
-            <Activity className="w-4 h-4 text-brand-green-light animate-pulse" />
+            <Activity className={`w-4 h-4 animate-pulse ${(apiStatus === 'online' || apiStatus === 'local (active)') ? 'text-brand-green-light' : apiStatus === 'offline' ? 'text-red-500' : 'text-yellow-500'}`} />
             <span className="capitalize">
               System: {' '}
-              <span className={apiStatus === 'online' ? 'text-brand-green font-semibold' : apiStatus === 'offline' ? 'text-red-500 font-semibold' : 'text-yellow-500'}>
+              <span className={(apiStatus === 'online' || apiStatus === 'local (active)') ? 'text-brand-green font-semibold' : apiStatus === 'offline' ? 'text-red-500 font-semibold' : 'text-yellow-500'}>
                 {apiStatus}
               </span>
             </span>
