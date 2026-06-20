@@ -7,14 +7,15 @@
         "path": "scholar-match",
         "options": {}
       },
-      "id": "e44d322b-23f4-4a57-b08e-73c38db5cc9f",
+      "id": "837bb1fb-8161-496b-a381-1d187c00bf7f",
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        100,
-        300
-      ]
+        -640,
+        96
+      ],
+      "webhookId": "e52cd21f-c0b6-4c8e-ada0-eb576bd2e2a1"
     },
     {
       "parameters": {
@@ -51,34 +52,45 @@
         },
         "options": {}
       },
-      "id": "5f6f8fb0-e22d-45db-b27b-23097bf8d5ef",
+      "id": "365c25f1-20e3-44c2-932e-92a5598fc2bf",
       "name": "Call ScholarAI Match API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        300,
-        300
+        -416,
+        96
       ]
     },
     {
       "parameters": {
         "conditions": {
-          "number": [
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{ $json.count }}",
-              "operation": "larger",
-              "value2": 0
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
             }
           ]
-        }
+        },
+        "options": {}
       },
-      "id": "76adcd9f-3ad0-482a-9e73-b3de8bcbc5f0",
+      "id": "1f01c802-dd79-4cbd-b034-5ed01c3b1f09",
       "name": "If Scholarships Found",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
+      "typeVersion": 2.3,
       "position": [
-        520,
-        300
+        -192,
+        96
       ]
     },
     {
@@ -87,13 +99,13 @@
         "responseBody": "={\n  \"status\": \"success\",\n  \"message\": \"Scholarships retrieved and email sent.\",\n  \"count\": {{ $node[\"Call ScholarAI Match API\"].json.count }},\n  \"scholarships\": {{ $node[\"Call ScholarAI Match API\"].json.scholarships }}\n}",
         "options": {}
       },
-      "id": "b3e34bcf-6938-4e89-a292-ccf54316938d",
+      "id": "cdc1ad3c-2433-4928-b00d-841d8966495e",
       "name": "Webhook Success Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1100,
-        200
+        480,
+        0
       ]
     },
     {
@@ -102,48 +114,47 @@
         "responseBody": "={\n  \"status\": \"no_results\",\n  \"message\": \"No matching scholarships found for this profile.\"\n}",
         "options": {}
       },
-      "id": "5a4d6f80-0a3c-41ad-a3e9-74c0b4353efd",
+      "id": "31b31ead-4ada-41df-925b-af9766dbae63",
       "name": "Webhook Empty Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        740,
-        450
+        32,
+        192
       ]
     },
     {
       "parameters": {
         "jsCode": "const scholarships = items[0].json.scholarships || [];\nlet emailBody = `<h2>ScholarAI Matched Opportunities</h2>`;\nemailBody += `<p>Based on your profile, here are the scholarships you qualify for:</p><hr/>`;\n\nscholarships.forEach(s => {\n  emailBody += `\n    <div style=\"margin-bottom: 20px;\">\n      <h3 style=\"color: #FF9933; margin-bottom: 5px;\">${s.name}</h3>\n      <p style=\"margin: 0; font-size: 14px;\"><strong>Authority:</strong> ${s.authority}</p>\n      <p style=\"margin: 0; font-size: 14px; color: #138808;\"><strong>Amount:</strong> ${s.amount_display}</p>\n      <p style=\"margin: 0; font-size: 14px;\"><strong>Deadline:</strong> ${s.deadline_display}</p>\n      <p style=\"margin: 0; font-size: 14px; font-style: italic;\"><strong>Why you qualify:</strong> ${s.eligibility_reason}</p>\n      <p style=\"margin: 5px 0 0 0; font-size: 14px;\">\n        <a href=\"${s.apply_url}\" target=\"_blank\" style=\"background-color: #FF9933; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 5px;\">Apply Directly</a>\n      </p>\n    </div>\n    <hr style=\"border: 0; border-top: 1px solid #ddd;\"/>\n  `;\n});\n\nemailBody += `<p style=\"font-size: 11px; color: #888;\">Disclaimer: Verify details on official portals before applying. This is an automated email from ScholarAI.</p>`;\n\nreturn [{ json: { emailBody } }];"
       },
-      "id": "422ff3db-df19-482a-bc9f-8640774a3dfb",
+      "id": "fc81e9b8-5b0b-4b54-bf58-d9b402744190",
       "name": "Format HTML Email Content",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        740,
-        200
+        32,
+        0
       ]
     },
     {
       "parameters": {
         "sendTo": "={{ $node[\"Webhook Trigger\"].json.body.email }}",
         "subject": "🎓 Your Personalized ScholarAI Matching Results",
-        "emailType": "html",
-        "htmlBody": "={{ $json.emailBody }}",
         "options": {}
       },
-      "id": "278e3cdb-f2df-422f-b4df-ec1f885e3f1b",
+      "id": "b8cc6cd4-c38d-475c-bdbd-d34f982009e0",
       "name": "Send Gmail Notification",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        920,
-        200
+        256,
+        0
       ],
+      "webhookId": "01b5e0ea-79a6-457e-a079-21447c3f3a2d",
       "credentials": {
         "gmailOAuth2": {
-          "id": "mock-credentials-id",
-          "name": "My Gmail Account"
+          "id": "UhqMHnxGwLOJQ1Dz",
+          "name": "Gmail OAuth2 API"
         }
       }
     }
@@ -154,6 +165,7 @@
         [
           {
             "node": "Call ScholarAI Match API",
+            "type": "main",
             "index": 0
           }
         ]
@@ -164,6 +176,7 @@
         [
           {
             "node": "If Scholarships Found",
+            "type": "main",
             "index": 0
           }
         ]
@@ -174,12 +187,14 @@
         [
           {
             "node": "Format HTML Email Content",
+            "type": "main",
             "index": 0
           }
         ],
         [
           {
             "node": "Webhook Empty Response",
+            "type": "main",
             "index": 0
           }
         ]
@@ -190,6 +205,7 @@
         [
           {
             "node": "Send Gmail Notification",
+            "type": "main",
             "index": 0
           }
         ]
@@ -200,17 +216,16 @@
         [
           {
             "node": "Webhook Success Response",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "id": "1",
+  "pinData": {},
   "meta": {
-    "templateId": "scholarai-workflow-mvp"
+    "templateCredsSetupCompleted": true,
+    "instanceId": "784870d1eb048c55c2cbc570594bf8c714c54e8c85cd51aa1f1ccad528ad6291"
   }
 }
